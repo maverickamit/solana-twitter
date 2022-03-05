@@ -7,7 +7,24 @@ declare_id!("EGqjPAXfu96K6k5tXWFJGBNREesNxsGYAZTDvb8pCADz");
 pub mod solana_twitter {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+    pub fn send_tweet(ctx: Context<sendTweet>,topic: String,content: String) -> programResult {
+        let tweet: &mut Account<Tweet> = &mut ctx.accounts.tweet
+        let author:&Signer = &ctx.accounts.author
+        let clock: Clock = Clock::get().unwrap();
+      
+        if(topic.chars().count()>50){
+            return Err(ErrorCode::TopicTooLong,into())
+        }
+
+        if(content.chars().count()>280){
+            return Err(ErrorCode::ContentTooLong,into())
+        }
+        
+        //storing values in tweet account
+        tweet.author = *author.key;
+        tweet.timestamp = clock.unix_timestamp;
+        tweet.topic = topic;
+        tweet.content = content;
         Ok(())
     }
 }
@@ -45,4 +62,13 @@ const MAX_CONTENT_LENGTH: usize = 280 * 4; // 280 chars max.
 impl Tweet {
     const LEN: usize = (DISCRIMINATOR_LENGTH + PUBLIC_KEY_LENGTH  + TIMESTAMP_LENGTH
      + STRING_LENGTH_PREFIX + MAX_TOPIC_LENGTH + STRING_LENGTH_PREFIX + MAX_CONTENT_LENGTH); 
+}
+
+//implement a new ErrorCode 
+#[error]
+pub enum ErrorCode {
+    #[msg("The provided topic should be 50 characters long maximum.")]
+    TopicTooLong,
+    #[msg("The provided content should be 280 characters long maximum.")]
+    ContentTooLong,
 }
