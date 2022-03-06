@@ -102,5 +102,25 @@ describe("solana-twitter", () => {
 
     //If there are no errors thrown inside the try block
     assert.fail('The instruction should have failed with a 51-character topic.');
-});
+  });
+
+  it('cannot provide a content with more than 280 characters', async () => {
+    try {
+        const contentWith281Chars = 'a'.repeat(281);
+        await program.rpc.sendTweet("veganism", contentWith281Chars, {
+            accounts: {
+                tweet: tweet.publicKey,
+                author: program.provider.wallet.publicKey,
+                systemProgram: anchor.web3.SystemProgram.programId,
+            },
+            signers: [tweet],
+        });
+    } catch (error) {
+      assert.strictEqual(error.toString(),"The provided content should be 280 characters long maximum.");
+      return;      
+    }
+
+    //If there are no errors thrown inside the try block
+    assert.fail('The instruction should have failed with a 281-character content.');
+  });
 });
