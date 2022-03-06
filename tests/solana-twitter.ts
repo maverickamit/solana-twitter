@@ -83,4 +83,24 @@ describe("solana-twitter", () => {
     assert.strictEqual(tweetAccount.content, 'Yay Tofu!')
     assert.ok(tweetAccount.timestamp)
   })
+
+  it('cannot provide a topic with more than 50 characters', async () => {
+    try {
+        const topicWith51Chars = 'a'.repeat(51);
+        await program.rpc.sendTweet(topicWith51Chars, 'Hummus, am I right?', {
+            accounts: {
+                tweet: tweet.publicKey,
+                author: program.provider.wallet.publicKey,
+                systemProgram: anchor.web3.SystemProgram.programId,
+            },
+            signers: [tweet],
+        });
+    } catch (error) {
+      assert.strictEqual(error.toString(),"The provided topic should be 50 characters long maximum.");
+      return;      
+    }
+
+    //If there are no errors thrown inside the try block
+    assert.fail('The instruction should have failed with a 51-character topic.');
+});
 });
