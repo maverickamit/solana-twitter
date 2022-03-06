@@ -11,12 +11,12 @@ pub mod solana_twitter {
         let author:&Signer = &ctx.accounts.author;
         let clock: Clock = Clock::get().unwrap();
       
-        if topic.chars().count()>50 {
-            return Err(ErrorCode::TopicTooLong.into())
+        if topic.chars().count()>50 
+            return Err(error!(ErrorCode::TopicTooLong))
         }
 
         if content.chars().count()>280 {
-            return Err(ErrorCode::ContentTooLong.into())
+            return Err(error!(ErrorCode::ContentTooLong))
         }
         
         //storing values in tweet account
@@ -63,7 +63,7 @@ impl Tweet {
 }
 
 //implement a new ErrorCode 
-#[error_code(offset = 0)]
+#[error_code]
 pub enum ErrorCode {
     #[msg("The provided topic should be 50 characters long maximum.")]
     TopicTooLong,
