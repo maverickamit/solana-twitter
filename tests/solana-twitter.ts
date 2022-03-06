@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { SolanaTwitter } from "../target/types/solana_twitter";
+import * as assert from "assert";
 
 describe("solana-twitter", () => {
   // Configure the client to use the local cluster.
@@ -23,5 +24,11 @@ describe("solana-twitter", () => {
     // Fetch the account details of the created tweet.
     const tweetAccount = await program.account.tweet.fetch(tweet.publicKey);
   	console.log(tweetAccount);
+
+    //Ensure it has the right data
+    assert.strictEqual(tweetAccount.author.toBase58(), program.provider.wallet.publicKey.toBase58())
+    assert.strictEqual(tweetAccount.topic , 'veganism')
+    assert.strictEqual(tweetAccount.content , 'Hummus, am I right?')
+    assert.ok(tweetAccount.timestamp)
 });
 });
