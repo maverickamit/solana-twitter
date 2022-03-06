@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::system_program;
 
 declare_id!("EGqjPAXfu96K6k5tXWFJGBNREesNxsGYAZTDvb8pCADz");
 
@@ -7,17 +6,17 @@ declare_id!("EGqjPAXfu96K6k5tXWFJGBNREesNxsGYAZTDvb8pCADz");
 pub mod solana_twitter {
     use super::*;
 
-    pub fn send_tweet(ctx: Context<sendTweet>,topic: String,content: String) -> programResult {
-        let tweet: &mut Account<Tweet> = &mut ctx.accounts.tweet
-        let author:&Signer = &ctx.accounts.author
+    pub fn send_tweet(ctx: Context<SendTweet>,topic: String,content: String) -> Result<()> {
+        let tweet: &mut Account<Tweet> = &mut ctx.accounts.tweet;
+        let author:&Signer = &ctx.accounts.author;
         let clock: Clock = Clock::get().unwrap();
       
-        if(topic.chars().count()>50){
-            return Err(ErrorCode::TopicTooLong,into())
+        if topic.chars().count()>50 {
+            return Err(ErrorCode::TopicTooLong.into())
         }
 
-        if(content.chars().count()>280){
-            return Err(ErrorCode::ContentTooLong,into())
+        if content.chars().count()>280 {
+            return Err(ErrorCode::ContentTooLong.into())
         }
         
         //storing values in tweet account
@@ -31,13 +30,12 @@ pub mod solana_twitter {
 
 #[derive(Accounts)]
 //Context of send_tweet instruction
-pub struct sendTweet<'info> {
+pub struct SendTweet<'info> {
     #[account(init, payer = author, space = Tweet::LEN )] //Initializes a tweet account 
     pub tweet : Account<'info,Tweet>,
     #[account(mut)]
     pub author: Signer<'info>,
-    #[account(address = system_program::ID)] 
-    pub system_program:AccountInfo<'info>
+    pub system_program: Program<'info, System> 
 
 }
 
@@ -65,7 +63,7 @@ impl Tweet {
 }
 
 //implement a new ErrorCode 
-#[error]
+#[error_code(offset = 0)]
 pub enum ErrorCode {
     #[msg("The provided topic should be 50 characters long maximum.")]
     TopicTooLong,
