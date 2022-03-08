@@ -123,4 +123,11 @@ describe("solana-twitter", () => {
     //If there are no errors thrown inside the try block
     assert.fail('The instruction should have failed with a 281-character content.');
   });
+
+  it('can fetch all tweets', async () => {
+    //Please reset local ledger before this test
+    const tweetAccounts = await program.account.tweet.all();
+    assert.strictEqual(tweetAccounts.length,3)
+
+  });
 });
